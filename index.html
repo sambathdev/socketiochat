@@ -6,13 +6,19 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
   <title>Post TODOs</title>
+  <style>
+    .self{
+      text-align: right;
+    }
+  </style>
 </head>
 <body>
     <center><h1>Socket.io</h1></center>
     
     <div class="container">
-      <input type="text" id="ipbox">
-      <button type="button" class="btn btn-primary" id="addbtn">Add TODO</button>
+      <input type="text" id="ipbox" placeholder="Message" class="form-control">
+      <input type="text" id="by" placeholder="By" class="form-control">
+      <button type="button" class="btn btn-primary" id="addbtn">Chat</button>
       <div id="list">
 
       </div>
@@ -27,6 +33,7 @@
         var addbtn = element('addbtn');
         var ipbox = element('ipbox');
         var list = element('list');
+        var by = element('by');
 
         // var socket = io.connect('http://127.0.0.1:3000');
         // var socket = io.connect('http://127.0.0.1:4000');
@@ -34,20 +41,33 @@
         if(socket !== undefined){
           console.log('connected to socket');
           addbtn.addEventListener('click', (e) => {
-            socket.emit('add', ipbox.value);
+            var msg = {
+              message: ipbox.value,
+              by: by.value
+            };
+            socket.emit('add', msg);
             ipbox.value = '';
           });
 
           socket.on('add', (data) => {
             list.innerHTML = '';
             for(var i = 0; i < data.length; ++i){
+              var isadmin = false;
+              if(data[i].by == by.value){
+                isadmin = true;
+              }
               var div = document.createElement('div');
+              if(isadmin){
+                div.classList = "alert alert-primary self";
+              }else{
+                div.classList = "alert alert-secondary";
+              }
               var newTodo = document.createElement('p');
               newTodo.classList = 'todolist';
-              newTodo.innerHTML = data[i];
-              var rank = document.createElement('b');
-              rank.innerHTML = i;
-              div.appendChild(rank);
+              newTodo.innerHTML = data[i].message;
+              var name = document.createElement('b');
+              name.innerHTML = data[i].by;
+              div.appendChild(name);
               div.appendChild(newTodo);
               list.appendChild(div);
             }
