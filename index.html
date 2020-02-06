@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+  <title>Post TODOs</title>
+</head>
+<body>
+    <center><h1>Socket.io</h1></center>
+    
+    <div class="container">
+      <input type="text" id="ipbox">
+      <button type="button" class="btn btn-primary" id="addbtn">Add TODO</button>
+      <div id="list">
+
+      </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.dev.js"></script>
+    <script>
+      
+      (function(){
+        var element = function(id){
+          return document.getElementById(id);
+        }
+        var addbtn = element('addbtn');
+        var ipbox = element('ipbox');
+        var list = element('list');
+
+        // var socket = io.connect('http://127.0.0.1:3000');
+        // var socket = io.connect('http://127.0.0.1:4000');
+        var socket = io.connect('https://sambathsocket.herokuapp.com/');
+        if(socket !== undefined){
+          console.log('connected to socket');
+          addbtn.addEventListener('click', (e) => {
+            socket.emit('add', ipbox.value);
+            ipbox.value = '';
+          });
+
+          socket.on('add', (data) => {
+            list.innerHTML = '';
+            for(var i = 0; i < data.length; ++i){
+              var div = document.createElement('div');
+              var newTodo = document.createElement('p');
+              newTodo.classList = 'todolist';
+              newTodo.innerHTML = data[i];
+              var rank = document.createElement('b');
+              rank.innerHTML = i;
+              div.appendChild(rank);
+              div.appendChild(newTodo);
+              list.appendChild(div);
+            }
+            var todolist = document.getElementsByClassName('todolist');
+            for (var i = 0; i < todolist.length; i++) {
+              todolist[i].addEventListener('click', function(){
+                console.log(this.innerHTML);
+              });
+            }
+          });
+        }
+      })();
+    </script>
+
+
+
+</body>
+</html>
